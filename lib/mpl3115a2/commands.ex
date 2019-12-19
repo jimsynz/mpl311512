@@ -130,33 +130,52 @@ defmodule MPL3115A2.Commands do
   @doc """
   OUT_P Altitude in meters.
   """
-  def altitude(pid), do: Registers.pressure_data_out(pid) |> to_altitude
+  def altitude(pid), do: pid |> Registers.pressure_data_out() |> to_altitude()
 
   @doc """
   OUT_P Pressure in Pascals.
   """
-  def pressure(pid), do: Registers.pressure_data_out(pid) |> to_pressure
+  def pressure(pid), do: pid |> Registers.pressure_data_out() |> to_pressure()
 
   @doc """
   OUT_T Temperature in ℃.
   """
-  def temperature(pid), do: Registers.temperature_data_out(pid) |> to_temperature
+  def temperature(pid) do
+    <<whole::signed-integer-size(8), fractional::unsigned-integer-size(4),
+      _::unsigned-integer-size(4)>> = Registers.temperature_data_out(pid)
+
+    whole + fractional / 16.0
+  end
 
   @doc """
   OUT_P_DELTA Altitude delta in meters.
   """
-  def altitude_delta(pid), do: Registers.pressure_data_out_delta(pid) |> to_altitude_delta
+  def altitude_delta(pid) do
+    <<whole::signed-integer-size(16), fractional::unsigned-integer-size(4),
+      _::unsigned-integer-size(4)>> = Registers.pressure_data_out_delta(pid)
+
+    whole + fractional / 16.0
+  end
 
   @doc """
   OUT_P_DELTA Pressure delta in Pascals.
   """
-  def pressure_delta(pid), do: Registers.pressure_data_out_delta(pid) |> to_pressure_delta
+  def pressure_delta(pid) do
+    <<whole::signed-integer-size(18), fractional::unsigned-integer-size(2),
+      _::unsigned-integer-size(2)>> = Registers.pressure_data_out_delta(pid)
+
+    whole + fractional / 4.0
+  end
 
   @doc """
   OUT_T_DELTA Temperature delta in ℃.
   """
-  def temperature_delta(pid),
-    do: Registers.temperature_data_out_delta(pid) |> to_temperature_delta
+  def temperature_delta(pid) do
+    <<whole::signed-integer-size(8), fractional::unsigned-integer-size(4),
+      _::unsigned-integer-size(4)>> = Registers.temperature_data_out_delta(pid)
+
+    whole + fractional / 2.0
+  end
 
   @doc """
   WHO_AM_I Should always respond with 0x0c.
@@ -571,7 +590,7 @@ defmodule MPL3115A2.Commands do
   def minimum_temperature(pid) do
     pid
     |> Registers.minimum_temperature_data()
-    |> to_temperature
+    |> to_temperature()
   end
 
   @doc """
@@ -1373,38 +1392,29 @@ defmodule MPL3115A2.Commands do
     end)
   end
 
+  defp to_altitude(
+         <<whole::signed-integer-size(16), fractional::unsigned-integer-size(4),
+           _::unsigned-integer-size(4)>>
+       ),
+       do: whole + fractional / 16.0
+
+  defp to_pressure(
+         <<whole::unsigned-integer-size(18), fractional::unsigned-integer-size(2),
+           _::unsigned-integer-size(2)>>
+       ),
+       do: whole + fractional / 4.0
+
+  defp to_temperature(
+         <<whole::signed-integer-size(8), fractional::unsigned-integer-size(4),
+           _::unsigned-integer-size(4)>>
+       ),
+       do: whole + fractional / 16.0
+
   defp get_bit(<<byte>>, bit), do: byte >>> bit &&& 1
   defp set_bit(byte, bit), do: set_bit(byte, bit, 1)
   defp set_bit(<<byte>>, bit, 1), do: byte ||| 1 <<< bit
   defp set_bit(byte, bit, 0), do: clear_bit(byte, bit)
   defp clear_bit(<<byte>>, bit), do: byte ||| ~~~(1 <<< bit)
-
-  # meters
-  defp to_altitude(<<msb, csb, lsb>>) do
-    (msb <<< 24 ||| csb <<< 16 ||| lsb <<< 8) / 65536
-  end
-
-  defp to_altitude_delta(<<msb, csb, lsb>>) do
-    (msb <<< 8) + csb + (lsb >>> 4) / 100
-  end
-
-  # pascals
-  defp to_pressure(<<msb, csb, lsb>>) do
-    (msb <<< 16 ||| csb <<< 8 ||| lsb) / 64
-  end
-
-  defp to_pressure_delta(<<msb, csb, lsb>>) do
-    (msb <<< 10) + (csb <<< 2) + (lsb &&& 3) + (lsb >>> 4 &&& 3) * 0.25
-  end
-
-  # ℃
-  defp to_temperature(<<msb, lsb>>) do
-    (msb <<< 8 ||| lsb) / 256
-  end
-
-  defp to_temperature_delta(<<msb, lsb>>) do
-    (msb <<< 4) + (lsb >>> 4)
-  end
 
   defp b(0), do: false
   defp b(1), do: true
