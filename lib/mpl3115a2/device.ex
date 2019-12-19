@@ -4,9 +4,22 @@ defmodule MPL3115A2.Device do
   use GenServer
   require Logger
 
+  @moduledoc """
+  A process which manages the MPL3115A2 peripheral.
+  """
+
+  @type device_name :: any
+  @type altitude :: non_neg_integer()
+  @type pressure :: non_neg_integer()
+  @type temperature :: number
+
   @doc """
   Returns true of there is pressure or temperature data ready for reading.
   """
+  @spec pressure_or_temperature_data_ready?(pid | device_name) :: boolean
+  def pressure_or_temperature_data_ready?(pid) when is_pid(pid),
+    do: GenServer.call(pid, :pressure_or_temperature_data_ready?)
+
   def pressure_or_temperature_data_ready?(device_name),
     do:
       GenServer.call(
@@ -17,6 +30,10 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns true of there is pressure data ready for reading.
   """
+  @spec pressure_data_available?(pid | device_name) :: boolean
+  def pressure_data_available?(pid) when is_pid(pid),
+    do: GenServer.call(pid, :pressure_data_available?)
+
   def pressure_data_available?(device_name),
     do:
       GenServer.call(
@@ -27,6 +44,10 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns true of there is temperature data ready for reading.
   """
+  @spec temperature_data_available?(pid | device_name) :: boolean
+  def temperature_data_available?(pid) when is_pid(pid),
+    do: GenServer.call(pid, :temperature_data_available?)
+
   def temperature_data_available?(device_name),
     do:
       GenServer.call(
@@ -37,6 +58,9 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns the current altutude (in meters).
   """
+  @spec altitude(pid | device_name) :: altitude
+  def altitude(pid) when is_pid(pid), do: GenServer.call(pid, :altitude)
+
   def altitude(device_name),
     do:
       GenServer.call(
@@ -47,6 +71,9 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns the current barometric pressure (in Pascals).
   """
+  @spec pressure(pid | device_name) :: pressure
+  def pressure(pid) when is_pid(pid), do: GenServer.call(pid, :pressure)
+
   def pressure(device_name),
     do:
       GenServer.call(
@@ -57,6 +84,9 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns the current temperature (in ℃)
   """
+  @spec temperature(pid | device_name) :: temperature
+  def temperature(pid) when is_pid(pid), do: GenServer.call(pid, :temperature)
+
   def temperature(device_name),
     do:
       GenServer.call(
@@ -67,6 +97,9 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns the change in altitude since the last sample (in meters).
   """
+  @spec altitude_delta(pid | device_name) :: altitude
+  def altitude_delta(pid) when is_pid(pid), do: GenServer.call(pid, :altitude_delta)
+
   def altitude_delta(device_name),
     do:
       GenServer.call(
@@ -77,6 +110,9 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns the change in pressure since the last sample (in Pascals).
   """
+  @spec pressure_delta(pid | device_name) :: pressure
+  def pressure_delta(pid) when is_pid(pid), do: GenServer.call(pid, :pressure_delta)
+
   def pressure_delta(device_name),
     do:
       GenServer.call(
@@ -87,6 +123,9 @@ defmodule MPL3115A2.Device do
   @doc """
   Returns the change in temperature since the last sample (in ℃)
   """
+  @spec temperature_delta(pid | device_name) :: temperature
+  def temperature_delta(pid) when is_pid(pid), do: GenServer.call(pid, :temperature_delta)
+
   def temperature_delta(device_name),
     do:
       GenServer.call(
@@ -97,6 +136,10 @@ defmodule MPL3115A2.Device do
   @doc """
   Execute an arbitrary function with the PID of the I2C connection.
   """
+  @spec execute(pid | device_name, (pid -> any)) :: any
+  def execute(pid, function) when is_pid(pid) and is_function(function, 1),
+    do: GenServer.call(pid, {:execute, function})
+
   def execute(device_name, function) when is_function(function, 1),
     do: GenServer.call({:via, Registry, {MPL3115A2.Registry, device_name}}, {:execute, function})
 

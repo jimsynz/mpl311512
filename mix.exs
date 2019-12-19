@@ -4,7 +4,7 @@ defmodule MPL3115A2.MixProject do
   def project do
     [
       app: :mpl3115a2,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description: "Driver for the MPL3115A2 altimeter connected via I2C.",

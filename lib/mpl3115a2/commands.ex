@@ -1406,11 +1406,6 @@ defmodule MPL3115A2.Commands do
     (msb <<< 4) + (lsb >>> 4)
   end
 
-  # ℃
-  defp to_raw_temperature(<<msb, lsb>>) do
-    (msb <<< 8) + lsb
-  end
-
   defp b(0), do: false
   defp b(1), do: true
 end
