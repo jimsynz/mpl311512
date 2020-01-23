@@ -16,15 +16,14 @@ defmodule MPL3115A2.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
-      mod: {MPL3115A2.Application, []}
+      extra_applications: [:logger]
     ]
   end
 
   def package do
     [
       maintainers: ["James Harton <james@automat.nz>"],
-      licenses: ["MIT"],
+      licenses: ["Hippocratic"],
       links: %{
         "Source" => "https://gitlab.com/jimsy/mpl3115a2"
       }
@@ -34,8 +33,13 @@ defmodule MPL3115A2.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elixir_ale, "~> 1.2"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:circuits_i2c, "~> 0.3", optional: true},
+      {:credo, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:earmark, ">= 0.0.0", only: [:dev, :test]},
+      {:elixir_ale, "~> 1.2", optional: true},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
+      {:mimic, "~> 1.1", only: :test},
+      {:wafer, "~> 0.1"}
     ]
   end
 end
