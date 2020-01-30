@@ -2,8 +2,8 @@ defmodule MPL3115A2 do
   @derive [Wafer.Chip, Wafer.DeviceID, Wafer.Release]
   defstruct ~w[conn]a
   @behaviour Wafer.Conn
-  alias Wafer.Conn
   alias MPL3115A2.Registers
+  alias Wafer.Conn
   use Bitwise
   import Wafer.Twiddles
 
@@ -44,6 +44,7 @@ defmodule MPL3115A2 do
   """
   @spec acquire(acquire_options) :: {:ok, t} | {:error, reason :: any}
   @impl Wafer.Conn
+  # credo:disable-for-next-line
   def acquire(options) do
     standby =
       case Keyword.get(options, :standby, false) do
@@ -922,6 +923,7 @@ defmodule MPL3115A2 do
   Oversample delay in milliseconds.
   """
   @spec oversample_delay(t) :: {:ok, non_neg_integer} | {:error, reason :: any}
+  # credo:disable-for-next-line
   def oversample_delay(conn) do
     case oversample_ratio(conn) do
       {:ok, 1} -> {:ok, 6}
