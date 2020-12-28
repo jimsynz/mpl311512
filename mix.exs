@@ -39,7 +39,7 @@ defmodule MPL3115A2.MixProject do
       {:elixir_ale, "~> 1.2", optional: true},
       {:ex_doc, ">= 0.0.0", only: [:dev, :test]},
       {:mimic, "~> 1.1", only: :test},
-      {:wafer, "~> 0.1"}
+      {:wafer, "~> 0.3"}
     ]
   end
 end
