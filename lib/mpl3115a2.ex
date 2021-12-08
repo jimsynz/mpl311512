@@ -172,8 +172,7 @@ defmodule MPL3115A2 do
     with {:ok, <<msb>>} <- Registers.read_out_p_msb(conn),
          {:ok, <<csb>>} <- Registers.read_out_p_csb(conn),
          {:ok, <<lsb>>} <- Registers.read_out_p_lsb(conn),
-         {:ok, altitude} <- to_altitude(<<msb, csb, lsb>>),
-         do: {:ok, altitude}
+         do: to_altitude(<<msb, csb, lsb>>)
   end
 
   @doc """
@@ -184,8 +183,7 @@ defmodule MPL3115A2 do
     with {:ok, <<msb>>} <- Registers.read_out_p_msb(conn),
          {:ok, <<csb>>} <- Registers.read_out_p_csb(conn),
          {:ok, <<lsb>>} <- Registers.read_out_p_lsb(conn),
-         {:ok, pressure} <- to_pressure(<<msb, csb, lsb>>),
-         do: {:ok, pressure}
+         do: to_pressure(<<msb, csb, lsb>>)
   end
 
   @doc """
@@ -195,8 +193,7 @@ defmodule MPL3115A2 do
   def temperature(%MPL3115A2{conn: conn}) do
     with {:ok, <<msb>>} <- Registers.read_out_t_msb(conn),
          {:ok, <<lsb>>} <- Registers.read_out_t_lsb(conn),
-         {:ok, temperature} <- to_temperature(<<msb, lsb>>),
-         do: {:ok, temperature}
+         do: to_temperature(<<msb, lsb>>)
   end
 
   @doc """
@@ -207,8 +204,7 @@ defmodule MPL3115A2 do
     with {:ok, <<msb>>} <- Registers.read_out_p_delta_msb(conn),
          {:ok, <<csb>>} <- Registers.read_out_p_delta_csb(conn),
          {:ok, <<lsb>>} <- Registers.read_out_p_delta_lsb(conn),
-         {:ok, altitude} <- to_altitude(<<msb, csb, lsb>>),
-         do: {:ok, altitude}
+         do: to_altitude(<<msb, csb, lsb>>)
   end
 
   @doc """
@@ -219,8 +215,7 @@ defmodule MPL3115A2 do
     with {:ok, <<msb>>} <- Registers.read_out_p_delta_msb(conn),
          {:ok, <<csb>>} <- Registers.read_out_p_delta_csb(conn),
          {:ok, <<lsb>>} <- Registers.read_out_p_delta_lsb(conn),
-         {:ok, pressure} <- to_pressure(<<msb, csb, lsb>>),
-         do: {:ok, pressure}
+         do: to_pressure(<<msb, csb, lsb>>)
   end
 
   @doc """
@@ -230,8 +225,7 @@ defmodule MPL3115A2 do
   def temperature_delta(%MPL3115A2{conn: conn}) do
     with {:ok, <<msb>>} <- Registers.read_out_t_delta_msb(conn),
          {:ok, <<lsb>>} <- Registers.read_out_t_delta_lsb(conn),
-         {:ok, temperature} <- to_temperature_delta(<<msb, lsb>>),
-         do: {:ok, temperature}
+         do: to_temperature_delta(<<msb, lsb>>)
   end
 
   @doc """
