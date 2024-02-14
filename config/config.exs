@@ -6,7 +6,7 @@ config :mpl3115a2,
 config :git_ops,
   mix_project: Mix.Project.get!(),
   changelog_file: "CHANGELOG.md",
-  repository_url: "https://gitlab.com/jimsy/mpl3115a2",
+  repository_url: "https://harton.dev/james/mpl3115a2",
   manage_mix_version?: true,
   manage_readme_version: "README.md",
   version_tag_prefix: "v"

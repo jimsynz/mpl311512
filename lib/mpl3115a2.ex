@@ -4,7 +4,7 @@ defmodule MPL3115A2 do
   @behaviour Wafer.Conn
   alias MPL3115A2.Registers
   alias Wafer.Conn
-  use Bitwise
+  import Bitwise
   import Wafer.Twiddles
 
   @moduledoc """
@@ -533,8 +533,13 @@ defmodule MPL3115A2 do
   Default value: `false`.
   """
   @spec data_ready_event_mode(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def data_ready_event_mode(%MPL3115A2{conn: conn} = dev, value) when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &set_bit(&1, 2, value)),
+  def data_ready_event_mode(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &set_bit(&1, 2)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def data_ready_event_mode(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &clear_bit(&1, 2)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -557,9 +562,13 @@ defmodule MPL3115A2 do
   Default value: `false`.
   """
   @spec pressure_altitude_event_flag_enable(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def pressure_altitude_event_flag_enable(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &set_bit(&1, 1, value)),
+  def pressure_altitude_event_flag_enable(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &set_bit(&1, 1)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def pressure_altitude_event_flag_enable(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &clear_bit(&1, 1)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -582,8 +591,13 @@ defmodule MPL3115A2 do
   Default value: `false`.
   """
   @spec temperature_event_flag_enable(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def temperature_event_flag_enable(%MPL3115A2{conn: conn} = dev, value) when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &set_bit(&1, 0, value)),
+  def temperature_event_flag_enable(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &set_bit(&1, 0)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def temperature_event_flag_enable(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_pt_data_cfg(conn, &clear_bit(&1, 0)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -606,7 +620,7 @@ defmodule MPL3115A2 do
   """
   @spec barometric_pressure_input(t, pressure) :: {:ok, pressure} | {:error, reason :: any}
   def barometric_pressure_input(%MPL3115A2{conn: conn} = dev, pascals) do
-    data = div(pascals, 2)
+    data = pascals |> trunc() |> div(2)
     msb = data >>> 8 &&& 0xFF
     lsb = data &&& 0xFF
 
@@ -640,6 +654,7 @@ defmodule MPL3115A2 do
   """
   @spec pressure_or_altitude_target(t, pressure | altitude) :: {:ok, t} | {:error, reason :: any}
   def pressure_or_altitude_target(%MPL3115A2{conn: conn} = dev, pressure_or_altitude) do
+    pressure_or_altitude = trunc(pressure_or_altitude)
     msb = pressure_or_altitude >>> 8 &&& 0xFF
     lsb = pressure_or_altitude &&& 0xFF
 
@@ -661,6 +676,8 @@ defmodule MPL3115A2 do
   """
   @spec temperature_target(t, temperature) :: {:ok, t} | {:error, reason :: any}
   def temperature_target(%MPL3115A2{conn: conn} = dev, temperature) do
+    temperature = trunc(temperature)
+
     with {:ok, conn} <- Registers.write_t_tgt(conn, <<temperature &&& 0xFF>>),
          do: {:ok, %{dev | conn: conn}}
   end
@@ -686,6 +703,8 @@ defmodule MPL3115A2 do
   """
   @spec pressure_altitude_window(t, pressure | altitude) :: {:ok, t} | {:error, reason :: any}
   def pressure_altitude_window(%MPL3115A2{conn: conn} = dev, pressure_or_altitude) do
+    pressure_or_altitude = trunc(pressure_or_altitude)
+
     msb = pressure_or_altitude >>> 8 &&& 0xFF
     lsb = pressure_or_altitude &&& 0xFF
 
@@ -707,6 +726,8 @@ defmodule MPL3115A2 do
   """
   @spec temperature_window(t, temperature) :: {:ok, t} | {:error, reason :: any}
   def temperature_window(%MPL3115A2{conn: conn} = dev, temperature) do
+    temperature = trunc(temperature)
+
     with {:ok, conn} <- Registers.write_t_wnd(conn, <<temperature &&& 0xFF>>),
          do: {:ok, %{dev | conn: conn}}
   end
@@ -902,6 +923,7 @@ defmodule MPL3115A2 do
     value =
       value
       |> :math.sqrt()
+      |> trunc()
       |> band(0x3)
 
     with {:ok, conn} <-
@@ -957,8 +979,13 @@ defmodule MPL3115A2 do
   other interrupts are disabled.
   """
   @spec raw_output(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def raw_output(%MPL3115A2{conn: conn} = dev, value) when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg1(conn, &set_bit(&1, 6, value)),
+  def raw_output(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg1(conn, &set_bit(&1, 6)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def raw_output(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg1(conn, &clear_bit(&1, 6)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1012,6 +1039,7 @@ defmodule MPL3115A2 do
     value =
       value
       |> :math.sqrt()
+      |> trunc()
 
     with {:ok, conn} <-
            Registers.update_ctrl_reg2(conn, fn <<data>> ->
@@ -1249,8 +1277,13 @@ defmodule MPL3115A2 do
   Defaults to `false`.
   """
   @spec interrupt_enable_data_ready(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_data_ready(%MPL3115A2{conn: conn} = dev, value) when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 7, value)),
+  def interrupt_enable_data_ready(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 7)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_data_ready(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 7)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1277,8 +1310,13 @@ defmodule MPL3115A2 do
   true: FIFO interrupt enabled
   """
   @spec interrupt_enable_fifo(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_fifo(%MPL3115A2{conn: conn} = dev, value) when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 6, value)),
+  def interrupt_enable_fifo(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 6)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_fifo(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 6)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1305,9 +1343,13 @@ defmodule MPL3115A2 do
   true: Pressure window interrupt enabled
   """
   @spec interrupt_enable_pressure_window(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_pressure_window(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 5, value)),
+  def interrupt_enable_pressure_window(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 5)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_pressure_window(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 5)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1336,9 +1378,13 @@ defmodule MPL3115A2 do
   true: Temperature window interrupt enabled
   """
   @spec interrupt_enable_temperature_window(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_temperature_window(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 4, value)),
+  def interrupt_enable_temperature_window(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 4)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_temperature_window(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 4)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1365,9 +1411,13 @@ defmodule MPL3115A2 do
   true: Pressure Threshold interrupt enabled
   """
   @spec interrupt_enable_pressure_threshold(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_pressure_threshold(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 3, value)),
+  def interrupt_enable_pressure_threshold(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 3)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_pressure_threshold(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 3)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1394,9 +1444,13 @@ defmodule MPL3115A2 do
   true: Temperature Threshold interrupt enabled
   """
   @spec interrupt_enable_temperature_threshold(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_temperature_threshold(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 2, value)),
+  def interrupt_enable_temperature_threshold(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 2)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_temperature_threshold(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 2)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1423,9 +1477,13 @@ defmodule MPL3115A2 do
   true: Pressure Change interrupt enabled
   """
   @spec interrupt_enable_pressure_change(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_pressure_change(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 1, value)),
+  def interrupt_enable_pressure_change(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 1)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_pressure_change(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 1)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1452,9 +1510,13 @@ defmodule MPL3115A2 do
   true: Temperature Change interrupt enabled
   """
   @spec interrupt_enable_temperature_change(t, boolean) :: {:ok, t} | {:error, reason :: any}
-  def interrupt_enable_temperature_change(%MPL3115A2{conn: conn} = dev, value)
-      when is_boolean(value) do
-    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 0, value)),
+  def interrupt_enable_temperature_change(%MPL3115A2{conn: conn} = dev, true) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &set_bit(&1, 0)),
+         do: {:ok, %{dev | conn: conn}}
+  end
+
+  def interrupt_enable_temperature_change(%MPL3115A2{conn: conn} = dev, false) do
+    with {:ok, conn} <- Registers.update_ctrl_reg4(conn, &clear_bit(&1, 0)),
          do: {:ok, %{dev | conn: conn}}
   end
 
@@ -1770,7 +1832,7 @@ defmodule MPL3115A2 do
        do: {:ok, whole + fractional / 16.0}
 
   defp to_pressure(
-         <<whole::unsigned-integer-size(18), fractional::unsigned-integer-size(2), _::size(2)>>
+         <<whole::unsigned-integer-size(18), fractional::unsigned-integer-size(2), _::size(4)>>
        ),
        do: {:ok, whole + fractional / 4.0}
 
