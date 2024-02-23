@@ -11,7 +11,11 @@ defmodule MPL3115A2.MixProject do
       start_permanent: Mix.env() == :prod,
       description: "Driver for the MPL3115A2 altimeter connected via I2C.",
       deps: deps(),
-      package: package()
+      package: package(),
+      docs: [
+        main: "readme",
+        extras: ["README.md", "CHANGELOG.md"]
+      ]
     ]
   end
 
@@ -27,7 +31,10 @@ defmodule MPL3115A2.MixProject do
       maintainers: ["James Harton <james@harton.nz>"],
       licenses: ["HL3-FULL"],
       links: %{
-        "Source" => "https://harton.dev/james/mpl3115a2"
+        "Source" => "https://harton.dev/james/mpl3115a2",
+        "GitHub" => "https://github.com/jimsynz/mpl3115a2",
+        "Changelog" => "https://docs.harton.nz/james/mpl3115a2/changelog.html",
+        "Sponsor" => "https://github.com/sponsors/jimsynz"
       }
     ]
   end
