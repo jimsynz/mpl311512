@@ -44,7 +44,7 @@ be found at [https://hexdocs.pm/mpl3115a2](https://hexdocs.pm/mpl3115a2).
 ## Github Mirror
 
 This repository is mirrored [on Github](https://github.com/jimsynz/mpl3115a2)
-from it's primary location [on my Forejo instance](https://harton.dev/james/mpl3115a2).
+from it's primary location [on my Forgejo instance](https://harton.dev/james/mpl3115a2).
 Feel free to raise issues and open PRs on Github.
 
 ## License
