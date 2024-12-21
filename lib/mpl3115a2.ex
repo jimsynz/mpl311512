@@ -359,7 +359,7 @@ defmodule MPL3115A2 do
       when count >= 0 and count <= 31 do
     with {:ok, conn} <-
            Registers.update_f_setup(conn, fn <<data>> ->
-             <<(data >>> 5 <<< 5) + (count &&& 0x1F)>>
+             <<((data >>> 5) <<< 5) + (count &&& 0x1F)>>
            end),
          do: {:ok, %{dev | conn: conn}}
   end
@@ -1043,7 +1043,7 @@ defmodule MPL3115A2 do
 
     with {:ok, conn} <-
            Registers.update_ctrl_reg2(conn, fn <<data>> ->
-             <<(data >>> 3 <<< 3) + (value &&& 0xF)>>
+             <<((data >>> 3) <<< 3) + (value &&& 0xF)>>
            end),
          do: {:ok, %{dev | conn: conn}}
   end
