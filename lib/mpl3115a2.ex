@@ -801,17 +801,25 @@ defmodule MPL3115A2 do
   end
 
   defp fifo_read(conn, count) do
-    with {:ok, fifo} <-
-           Enum.reduce_while(1..count, {:ok, []}, fn _, {:ok, acc} ->
-             with {:ok, <<msb>>} <- Registers.read_f_data(conn),
-                  {:ok, <<csb>>} <- Registers.read_f_data(conn),
-                  {:ok, <<lsb>>} <- Registers.read_f_data(conn) do
-               {:cont, {:ok, [<<msb, csb, lsb>> | acc]}}
-             else
-               {:error, reason} -> {:halt, {:error, reason}}
-             end
-           end),
+    with {:ok, fifo} <- read_fifo_entries(conn, count),
          do: {:ok, Enum.reverse(fifo)}
+  end
+
+  defp read_fifo_entries(conn, count) do
+    Enum.reduce_while(1..count, {:ok, []}, fn _, {:ok, acc} ->
+      case read_fifo_entry(conn) do
+        {:ok, entry} -> {:cont, {:ok, [entry | acc]}}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
+  end
+
+  defp read_fifo_entry(conn) do
+    with {:ok, <<msb>>} <- Registers.read_f_data(conn),
+         {:ok, <<csb>>} <- Registers.read_f_data(conn),
+         {:ok, <<lsb>>} <- Registers.read_f_data(conn) do
+      {:ok, <<msb, csb, lsb>>}
+    end
   end
 
   @doc """
