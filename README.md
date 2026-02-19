@@ -32,7 +32,7 @@ by adding `mpl3115a2` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:mpl3115a2, "~> 1.0.1"}
+    {:mpl3115a2, "~> 1.0.2"}
   ]
 end
 ```
