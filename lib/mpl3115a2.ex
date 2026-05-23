@@ -21,7 +21,7 @@ defmodule MPL3115A2 do
           | {:event_on_new_temperature, boolean}
           | {:event_on_new_pressue, boolean}
           | {:data_ready_event_mode, boolean}
-  @type oversample :: 1 | 2 | 4 | 8 | 16 | 32 | 64
+  @type oversample :: 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128
   @type mode :: :altimeter | :barometer
   @type altitude :: float
   @type pressure :: float
@@ -55,7 +55,7 @@ defmodule MPL3115A2 do
     oversample =
       case Keyword.get(options, :oversample, 128) do
         1 -> 0x00
-        2 -> 0x80
+        2 -> 0x08
         4 -> 0x10
         8 -> 0x18
         16 -> 0x20
@@ -915,7 +915,7 @@ defmodule MPL3115A2 do
     with {:ok, <<data>>} <- Registers.read_ctrl_reg1(conn) do
       ratio =
         2
-        |> :math.pow(data >>> 3 &&& 0x3)
+        |> :math.pow(data >>> 3 &&& 0x7)
         |> trunc()
 
       {:ok, ratio}
@@ -930,15 +930,15 @@ defmodule MPL3115A2 do
       when is_integer(value) and value >= 1 do
     value =
       value
-      |> :math.sqrt()
+      |> :math.log2()
       |> trunc()
-      |> band(0x3)
+      |> band(0x7)
 
     with {:ok, conn} <-
            Registers.update_ctrl_reg1(conn, fn <<data>> ->
-             head = data >>> 5
+             head = data >>> 6
              tail = data &&& 0x7
-             <<(head <<< 5) + (value <<< 3) + tail>>
+             <<(head <<< 6) + (value <<< 3) + tail>>
            end),
          do: {:ok, %{dev | conn: conn}}
   end
@@ -1035,7 +1035,7 @@ defmodule MPL3115A2 do
   """
   @spec data_acquisition_time_step(t) :: {:ok, non_neg_integer} | {:error, reason :: any}
   def data_acquisition_time_step(%MPL3115A2{conn: conn}) do
-    with {:ok, <<data>>} <- Registers.read_ctrl_reg2(conn), do: {:ok, :math.pow(2, data &&& 0xF)}
+    with {:ok, <<data>>} <- Registers.read_ctrl_reg2(conn), do: {:ok, 1 <<< (data &&& 0xF)}
   end
 
   @doc """
@@ -1043,15 +1043,16 @@ defmodule MPL3115A2 do
   """
   @spec data_acquisition_time_step(t, non_neg_integer) :: {:ok, t} | {:error, reason :: any}
   def data_acquisition_time_step(%MPL3115A2{conn: conn} = dev, value)
-      when is_integer(value) and value >= 0 do
+      when is_integer(value) and value >= 1 do
     value =
       value
-      |> :math.sqrt()
+      |> :math.log2()
       |> trunc()
+      |> band(0xF)
 
     with {:ok, conn} <-
            Registers.update_ctrl_reg2(conn, fn <<data>> ->
-             <<((data >>> 3) <<< 3) + (value &&& 0xF)>>
+             <<((data >>> 4) <<< 4) + value>>
            end),
          do: {:ok, %{dev | conn: conn}}
   end

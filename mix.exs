@@ -10,6 +10,7 @@ defmodule MPL3115A2.MixProject do
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       description: "Driver for the MPL3115A2 altimeter connected via I2C.",
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
       docs: [
@@ -18,6 +19,9 @@ defmodule MPL3115A2.MixProject do
       ]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
