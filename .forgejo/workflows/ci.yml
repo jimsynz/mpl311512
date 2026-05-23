@@ -12,4 +12,5 @@ jobs:
     runs-on: docker
     with:
       hex_release_enabled: true
+      git_ops_enabled: false
     secrets: inherit
