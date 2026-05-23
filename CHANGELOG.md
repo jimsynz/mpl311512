@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [v1.0.3](https://harton.dev/james/mpl3115a2/compare/v1.0.2...v1.0.3) (2026-05-23)
+
+
+
+
+### Bug Fixes:
+
+* correct OS and ST bit-field encoding in `CTRL_REG1`/`CTRL_REG2` by James Harton
+
 ## [v1.0.2](https://harton.dev/james/mpl3115a2/compare/v1.0.1...v1.0.2) (2026-02-19)
 
 
