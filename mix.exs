@@ -46,7 +46,6 @@ defmodule MPL3115A2.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:circuits_ft232h, "~> 0.2", only: :dev},
       {:circuits_i2c, "~> 2.0", optional: true},
       {:credo, "~> 1.6", only: ~w[dev test]a, runtime: false},
       {:dialyxir, "~> 1.4", only: ~w[dev test]a, runtime: false},
